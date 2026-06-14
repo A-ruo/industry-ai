@@ -3,963 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>行业洞察 · 分析工作台</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <title>行业洞察 · AI 分析工作台</title>
     <style>
         :root {
-            --bg: #0f1117;
-            --card-bg: #1a1d27;
-            --card-bg-hover: #212433;
-            --border: #2a2e3a;
-            --text: #e0e3eb;
-            --text-secondary: #8b8f9e;
+            --bg: #0a0c14;
             --accent: #2e7dfc;
             --accent-glow: #4d94ff;
-            --green: #0fba83;
-            --red: #f23b4c;
-            --orange: #f59e0b;
+            --text: #e0e3eb;
+            --text-secondary: #8b8f9e;
             --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             background: var(--bg);
             font-family: var(--font);
             color: var(--text);
-            line-height: 1.6;
+            overflow-x: hidden;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 2rem 1.5rem;
-        }
-        .container { max-width: 1200px; width: 100%; }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        .logo { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.3px; color: #fff; }
-        .logo span { color: var(--accent); }
-
-        .tab-group {
-            display: flex;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .tab-btn {
-            padding: 0.5rem 1.2rem;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-family: var(--font);
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-        .tab-btn.active { background: var(--accent); color: #fff; }
-        .tab-btn:not(.active):hover { color: #fff; background: rgba(255,255,255,0.05); }
-
-        .search-box {
-            display: flex;
-            gap: 0.5rem;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.3rem 0.3rem 0.3rem 1.2rem;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        .search-box input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text);
-            font-size: 0.95rem;
-            width: 100%;
-            font-family: var(--font);
-        }
-        .search-box input::placeholder { color: var(--text-secondary); }
-        .search-btn {
-            background: var(--accent);
-            border: none;
-            color: #fff;
-            padding: 0.5rem 1.2rem;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-family: var(--font);
-            white-space: nowrap;
-        }
-        .search-btn:hover { background: var(--accent-glow); }
-        .search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .industry-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
-            color: #fff;
-        }
-        .industry-sub {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+            justify-content: center;
+            position: relative;
         }
 
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.2rem;
-            margin-bottom: 2rem;
-        }
-        .metric-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1.3rem 1.4rem;
-            transition: all 0.2s;
-        }
-        .metric-card:hover { background: var(--card-bg-hover); border-color: #3a3f53; }
-        .metric-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-        .metric-value { font-size: 1.6rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
-        .metric-context { font-size: 0.85rem; color: var(--text-secondary); }
-        .trend-up { color: var(--green); }
-        .trend-down { color: var(--red); }
-
-        .section-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1.5rem 1.8rem;
-            margin-bottom: 1.2rem;
-            transition: background 0.2s;
-        }
-        .section-card:hover { background: var(--card-bg-hover); }
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 650;
-            margin-bottom: 0.8rem;
-            color: #fff;
-            border-left: 3px solid var(--accent);
-            padding-left: 0.8rem;
-        }
-        .section-content {
-            color: #cbd0db;
-            font-size: 0.95rem;
-            line-height: 1.7;
-        }
-        .section-content ul { list-style: none; padding-left: 0; }
-        .section-content li { margin-bottom: 0.4rem; display: flex; gap: 0.6rem; }
-        .section-content li::before {
-            content: "●";
-            color: var(--accent);
-            font-size: 0.7rem;
-            margin-top: 0.4rem;
-        }
-
-        .chart-bar {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin: 0.5rem 0;
-        }
-        .chart-bar .label { width: 80px; font-size: 0.85rem; color: var(--text-secondary); }
-        .chart-bar .bar-bg { flex: 1; background: #242836; border-radius: 4px; height: 8px; overflow: hidden; }
-        .chart-bar .bar-fill { height: 100%; border-radius: 4px; background: var(--accent); }
-
-        .footer-note {
-            margin-top: 2.5rem;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            text-align: center;
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-        }
-
-        .loading-text { color: var(--text-secondary); text-align: center; padding: 3rem 2rem; }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 3px solid var(--border);
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 1rem auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .error-text { color: #f23b4c; padding: 1rem; background: #2d1f21; border-radius: 6px; }
-        .placeholder-note {
-            color: var(--orange);
-            padding: 2rem;
-            text-align: center;
-            background: var(--card-bg);
-            border-radius: 10px;
-        }
-
-        .section-content { writing-mode: horizontal-tb !important; text-orientation: mixed; }
-        .section-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: 0.85rem;
-            color: #cbd0db;
-        }
-        .section-content th {
-            background: #242836;
-            color: #fff;
-            padding: 0.5rem 0.7rem;
-            border: 1px solid var(--border);
-            font-weight: 600;
-        }
-        .section-content td {
-            padding: 0.4rem 0.7rem;
-            border: 1px solid var(--border);
-        }
-        .section-content tr:hover td { background: rgba(46,125,252,0.08); }
-        .section-content h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #d0d4e0;
-            margin: 1rem 0 0.3rem 0;
-            padding-left: 0.5rem;
-            border-left: 2px solid rgba(46,125,252,0.5);
-        }
-        .section-content h2 {
-            font-size: 1.1rem;
-            font-weight: 650;
-            color: #fff;
-            margin: 1.2rem 0 0.5rem 0;
-            padding-left: 0.8rem;
-            border-left: 3px solid var(--accent);
-        }
-
-        /* 打印样式 */
-            @media print {
-            body {
-                background: #fff !important;
-                color: #000 !important;
-            }
-            /* 隐藏导航、卡片等 */
-            .header, .search-box, .tab-group, .footer-note,
-            #toggleDataBtn, #dataInputArea, #analysisMode,
-            .spinner, .spinner-dual, .loadingio-spinner-magnify-nq4q5u6dq7r,
-            .section-card, .metric-card, .btn-enter, .export-pdf-btn,
-            #genReportBtn {
-                display: none !important;
-            }
-
-            .report-document {
-                display: block !important;
-                background: #fff !important;
-                color: #000 !important;
-                padding: 1.5rem !important;
-                margin: 0 auto !important;
-                box-shadow: none !important;
-                line-height: 1.8;
-            }
-            .report-document * {
-                color: #000 !important;
-                text-shadow: none !important;
-                -webkit-text-fill-color: #000 !important;
-            }
-            .report-document h1,
-            .report-document h2,
-            .report-document h3 {
-                color: #000 !important;
-                border-bottom: 1px solid #ccc;
-            }
-            .report-document table {
-                border-color: #000 !important;
-            }
-            .report-document th {
-                background: #e0e0e0 !important;
-                color: #000 !important;
-                border-color: #000 !important;
-            }
-            .report-document td {
-                border-color: #000 !important;
-            }
-            .report-document strong {
-                color: #000 !important;
-            }
-            .report-document button {
-                display: none !important;
-            }
-            /* 清除任何内联颜色 */
-            [style*="color"] {
-                color: #000 !important;
-            }
-                        /* 确保页面本身无阴影、无背景 */
-            html, body {
-                background: #fff !important;
-                box-shadow: none !important;
-            }
-            /* 去掉报告里 h2 的蓝色左边框（打印时它会变灰，像阴影） */
-            .report-document h2,
-            .report-document h3 {
-                border-left: none !important;
-                padding-left: 0 !important;
-            }
-        }
-
-        /* ⏳ 弹跳动画 */
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-                .report-document {
-            background: var(--bg);
-            color: var(--text);
-            padding: 2rem 0;
-            line-height: 1.8;
-            font-size: 0.95rem;
-            /* 非卡片：无边框、无圆角、无阴影 */
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            margin-top: 1.5rem;
-            font-family: "PingFang SC", "Microsoft YaHei", "SimSun", serif;
-        }
-        .report-document * {
-            color: inherit;
-        }
-        .report-document h1,
-        .report-document h2,
-        .report-document h3 {
-            color: #ffffff;
-            border-bottom: 1px solid var(--border);
-        }
-        .report-document strong {
-            color: var(--accent-glow);
-        }
-        .report-document table {
-            color: var(--text);
-            border-color: var(--border);
-        }
-        .report-document th {
-            background: #242836;
-            color: #fff;
-        }
-        .loading-bounce-inline {
-            display: inline-block;
-            animation: bounce 1s infinite;
-        }
-            /* ========== 分析手册弹窗样式 ========== */
-        .guide-overlay {
-            display: none;
+        canvas#particleCanvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.75);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
+            z-index: 0;
         }
-        .guide-overlay.show {
-            display: flex;
-        }
-        .guide-modal {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 2rem;
-            color: var(--text);
-            font-family: var(--font);
-            line-height: 1.8;
+
+        .container {
             position: relative;
-        }
-        .guide-modal h1 {
-            font-size: 1.5rem;
-            color: #fff;
-            margin-bottom: 1.5rem;
+            z-index: 10;
             text-align: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1rem;
+            padding: 2rem;
+            animation: fadeInUp 1.2s ease-out;
         }
-        .guide-modal h2 {
-            font-size: 1.15rem;
-            color: #fff;
-            margin: 1.8rem 0 0.8rem 0;
-            border-left: 3px solid var(--accent);
-            padding-left: 0.8rem;
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .guide-modal h3 {
-            font-size: 1.0rem;
-            color: #d0d4e0;
-            margin: 1.2rem 0 0.5rem 0;
+
+        .logo-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
         }
-        .guide-modal p, .guide-modal li {
-            color: #cbd0db;
-            font-size: 0.9rem;
-            margin: 0.5rem 0;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-        .guide-modal ul {
-            padding-left: 1.5rem;
+
+        .main-title {
+            font-size: 2.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a0c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .guide-modal table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: 0.85rem;
+
+        .sub-title {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            font-weight: 300;
         }
-        .guide-modal th {
-            background: var(--card-bg);
-            color: #fff;
-            padding: 0.5rem 0.7rem;
-            border: 1px solid var(--border);
-            font-weight: 600;
-        }
-        .guide-modal td {
-            padding: 0.4rem 0.7rem;
-            border: 1px solid var(--border);
-            color: #cbd0db;
-        }
-        .guide-modal a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-        .guide-modal a:hover {
-            text-decoration: underline;
-        }
-        .guide-close-btn {
-            position: sticky;
-            top: 0;
-            float: right;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
+
+        .features {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             justify-content: center;
-            transition: all 0.2s;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
-        .guide-close-btn:hover {
-            background: var(--red);
+
+        .feature-card {
+            background: rgba(26, 29, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(46, 125, 252, 0.25);
+            border-radius: 14px;
+            padding: 1.5rem 2rem;
+            width: 200px;
+            transition: all 0.3s;
+            animation: fadeInUp 1.2s ease-out backwards;
+        }
+        .feature-card:nth-child(1) { animation-delay: 0.2s; }
+        .feature-card:nth-child(2) { animation-delay: 0.4s; }
+        .feature-card:nth-child(3) { animation-delay: 0.6s; }
+        .feature-card:nth-child(4) { animation-delay: 0.8s; }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 30px rgba(46, 125, 252, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+        }
+        .feature-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
             color: #fff;
-            border-color: var(--red);
         }
-            .brand-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #4d94ff, #a78bfa, #f59e0b);
+        .feature-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .btn-enter {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #6b3ff5);
+            color: #fff;
+            padding: 0.9rem 3rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(46, 125, 252, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-enter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 35px rgba(46, 125, 252, 0.45);
+        }
+
+        .footer-note {
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+                    .brand-gradient {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4d94ff, #a78bfa, #f59e0b, #4d94ff);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            animation: gradientFlow 3s ease infinite;
         }
-                .brand-name-inline {
-            font-size: 1.6rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #4d94ff, #a78bfa, #f59e0b);
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        .title-divider {
+            font-size: 2.2rem;
+            color: rgba(255,255,255,0.3);
+            margin: 0 0.5rem;
+            font-weight: 300;
+            vertical-align: middle;
+        }
+
+        .title-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff 0%, #a0c0ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
+    <canvas id="particleCanvas"></canvas>
+
     <div class="container">
-                <!-- 头部：Logo + 手册入口 + Tab 切换 -->
-        <div class="header">
-            <div style="display: flex; align-items: baseline; gap: 0.8rem; flex-wrap: wrap;">
-                <div class="logo"><span class="brand-name-inline">iAnalyst</span> · 行业<span>洞察</span> 分析工作台</div>
-                
+                <div class="logo-icon">🔍</div>
+        <h1 class="main-title">
+            <span class="brand-gradient">iAnalyst</span>
+            <span class="title-divider">·</span>
+            <span class="title-text">行业 / 企业洞察 AI 分析工作台</span>
+        </h1>
+        <p class="sub-title">基于 DeepSeek 大模型，系统化剖析行业与企业，辅助证券分析决策</p>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🧩</div>
+                <div class="feature-title">行业四步框架</div>
+                <div class="feature-desc">从框架速览到景气度判断，快速建立行业认知</div>
             </div>
-            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                <button id="openGuideBtn" style="background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 0.35rem 1rem; border-radius: 6px; cursor: pointer; font-family: var(--font); font-size: 0.85rem;">
-                    📖 证券分析全流程手册
-                </button>
-                <div class="tab-group">
-                    <button class="tab-btn active" id="tabIndustry">📈 行业分析</button>
-                    <button class="tab-btn" id="tabCompany">🏢 企业分析</button>
-                </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏢</div>
+                <div class="feature-title">企业 16 维度分析</div>
+                <div class="feature-desc">覆盖盈利、成长、护城河、杜邦等全方位深度剖析</div>
             </div>
-        </div>
-
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="输入行业名称，如 光伏、创新药..." value="新能源汽车">
-            <select id="analysisMode" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 0.6rem; border-radius: 6px; font-family: var(--font); font-size: 0.85rem; cursor: pointer;">
-                <option value="deep">🔬 深度研报</option>
-                <option value="quick" selected>⚡ 快速概览</option>
-                <option value="prosperity">📊 景气度专项</option>
-            </select>
-            <button class="search-btn" id="searchBtn">AI 分析</button>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-            <button id="toggleDataBtn" style="background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-family: var(--font); font-size: 0.85rem;">
-                📋 粘贴关键数据（可选，提高准确度）
-            </button>
-            <div id="dataInputArea" style="display: none; margin-top: 0.8rem;">
-                <textarea id="userDataInput" placeholder="在此粘贴财报摘要、行业数据、新闻等真实信息…&#10;AI 将优先基于这些数据分析，而非使用可能过时的训练数据。" style="width: 100%; height: 100px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 0.8rem; font-family: var(--font); font-size: 0.85rem; resize: vertical;"></textarea>
+            <div class="feature-card">
+                <div class="feature-icon">📡</div>
+                <div class="feature-title">景气度专项研判</div>
+                <div class="feature-desc">高频指标监控，捕捉行业拐点与趋势方向</div>
             </div>
-        </div>
-
-        <div id="reportContainer"></div>
-                
-
-        <!-- 分析手册弹窗 -->
-        <div class="guide-overlay" id="guideOverlay">
-            <div class="guide-modal">
-                <button class="guide-close-btn" id="closeGuideBtn">✕</button>
-                <h1>📖 证券分析全流程手册（配合 iAnalyst 使用）</h1>
-
-                <h2>1. 证券分析全景图</h2>
-                <p>证券分析是一个系统工程。从明确目标到最终决策，再到买入后的跟踪和复盘，可以拆解为八个步骤。iAnalyst 的定位是：<strong>协助你高效完成其中"信息收集、框架整理和初稿生成"的重复性工作</strong>，让你把更多精力投入在需要人类判断力的环节。</p>
-                <table>
-                    <tr><th>分析步骤</th><th>iAnalyst 辅助</th><th>人工核心工作</th></tr>
-                    <tr><td>1. 明确目标与范围</td><td>—</td><td>决定投资类型，确定分析深度</td></tr>
-                    <tr><td>2. 行业/板块比较</td><td>行业分析（四步框架）</td><td>锁定异常标的</td></tr>
-                    <tr><td>3. 定量财务分析</td><td>企业分析（15维度）</td><td>核对数据，补充最新财报</td></tr>
-                    <tr><td>4. 定性因素调查</td><td>护城河、产品、新闻解读</td><td>深度判断管理层、实地调研</td></tr>
-                    <tr><td>5. 安全边际计算</td><td>估值分析（PE对比）</td><td>建立估值模型，计算安全边际</td></tr>
-                    <tr><td>6. 综合评判与决策</td><td>一键生成综合投资报告</td><td>批判性审视，做最终决策</td></tr>
-                    <tr><td>7. 建立跟踪机制</td><td>—</td><td>设定跟踪指标与频率</td></tr>
-                    <tr><td>8. 复盘与迭代</td><td>—</td><td>记录经验，改进模型</td></tr>
-                </table>
-
-                <h2>2. 第一步：明确目标与范围</h2>
-                <p><strong>投资 vs 投机</strong>：投资型分析关注"安全"与"内在价值"，投机型分析更看重"价格变动潜力"。你是想长期持有，还是短期交易？这会决定后续分析的侧重点。</p>
-                <p><strong>分析深度</strong>：个人小额投资与机构大宗债券分析，所需的细致程度截然不同。根据自身资金规模和信息可得性，决定分析到什么程度。</p>
-
-                <h2>3. 第二步：行业/板块比较</h2>
-                <p><strong>目标</strong>：通过横向对比，快速锁定值得深入研究的对象。</p>
-                <p><strong>iAnalyst 操作</strong>：切换到"行业分析"板块，输入目标行业（如"光伏"），选择"深度研报"模式。你将获得行业生命周期阶段、市场规模与增速、CR4 集中度、头部公司列表、景气度判断。对比同行业多家公司，找出财务指标或估值明显偏离行业平均的标的。</p>
-
-                <h2>4. 第三步：定量财务分析</h2>
-                <p><strong>目标</strong>：用数据说话，评估公司财务健康状况。</p>
-                <table>
-                    <tr><th>指标</th><th>公式</th><th>判断参考</th></tr>
-                    <tr><td>毛利率</td><td>(营收-营业成本)/营收</td><td>>30% 通常较好，需与行业均值比较</td></tr>
-                    <tr><td>ROE</td><td>净利润/净资产</td><td>>15% 较优秀，关注是利润还是杠杆驱动</td></tr>
-                    <tr><td>存货周转率</td><td>营业成本/平均存货</td><td>越高卖货越快，但过高可能缺货</td></tr>
-                    <tr><td>流动比率</td><td>流动资产/流动负债</td><td>>1 较安全，<1 有短期偿债压力</td></tr>
-                    <tr><td>资产负债率</td><td>总负债/总资产</td><td>40-60% 常见，>70% 高杠杆需警惕</td></tr>
-                </table>
-                <p><strong>iAnalyst 操作</strong>：切换到"企业分析"板块，输入公司名称（如"伊利股份"），选择"深度研报"模式。报告会自动计算/引用上述关键指标并给出同比变化和趋势判断。杜邦分析板块将 ROE 拆解为利润率、周转率、杠杆率，帮你理解公司靠什么赚钱。</p>
-
-                <h2>5. 第四步：定性因素调查</h2>
-                <p><strong>目标</strong>：理解数字背后的故事。</p>
-                <p><strong>分析维度</strong>：</p>
-                <ul>
-                    <li><strong>企业层面</strong>：管理层信誉、经营策略、技术优势、成本结构。</li>
-                    <li><strong>行业层面</strong>：竞争格局、监管政策、周期性与成长性。</li>
-                    <li><strong>外部层面</strong>：宏观经济、利率、汇率、地缘政治风险。</li>
-                </ul>
-                <p><strong>iAnalyst 操作</strong>：查看企业分析的<strong>护城河分析</strong>（规模、渠道、品牌、技术四维度）、<strong>产品独特性</strong>（技术领先 vs 成本领先）、<strong>新闻解读</strong>（分析近期动态利好利空）。</p>
-
-                <h2>6. 第五步：安全边际计算</h2>
-                <p><strong>目标</strong>：只有当价格显著低于估算价值时才买入。</p>
-                <p><strong>常用估值方法</strong>：盈利折现模型、资产重估法、现金流贴现法、相对估值法（PE、PB、PS 对比）。</p>
-                <p><strong>iAnalyst 操作</strong>：企业分析的<strong>估值分析</strong>板块会列出当前动态 PE，并与 2-3 家竞争对手进行对比，判断估值折价/溢价，并给出修复催化剂分析。</p>
-
-                <h2>7. 第六步：综合评判与决策</h2>
-                <p><strong>目标</strong>：将定量与定性分析整合，形成最终投资建议。</p>
-                <p><strong>iAnalyst 操作</strong>：完成企业分析 15 个维度后，点击底部<strong>"生成综合投资分析报告"</strong>按钮，AI 将撰写包含执行摘要、投资亮点、风险提示和估值建议的完整报告。</p>
-                <p><strong>批判性使用</strong>：AI 报告是初稿，你需要检验数据来源是否可靠，假设是否合理，结论是否与独立判断一致。</p>
-
-                <h2>8. 第七步：建立价格/价值跟踪机制</h2>
-                <p><strong>目标</strong>：买入不是结束，持续跟踪才叫投资。</p>
-                <p><strong>建议自建 Excel 跟踪表</strong>：</p>
-                <table>
-                    <tr><th>跟踪日期</th><th>股价</th><th>动态PE</th><th>毛利率</th><th>重大新闻/公告</th><th>是否触发卖出条件</th></tr>
-                    <tr><td>2025-06-01</td><td>27.70</td><td>12.2</td><td>36.1%</td><td>无</td><td>否</td></tr>
-                </table>
-                <p>当基本面恶化、价格大幅偏离价值或出现更好机会时，果断修正或退出。</p>
-
-                <h2>9. 第八步：复盘与迭代</h2>
-                <p><strong>目标</strong>：把每次分析变成下一次的经验。</p>
-                <p><strong>复盘日志模板</strong>：</p>
-                <ul>
-                    <li>本次分析的初始假设是什么？</li>
-                    <li>哪些判断被证实，哪些被推翻？</li>
-                    <li>iAnalyst 输出中哪些部分最有用，哪些需要人工修正？</li>
-                    <li>下次分析时，流程或指标应如何调整？</li>
-                </ul>
-
-                <h2>10. 常用数据来源推荐</h2>
-                <table>
-                    <tr><th>类别</th><th>平台</th><th>网址</th><th>用途</th></tr>
-                    <tr><td>券商研报</td><td>东方财富</td><td><a href="https://data.eastmoney.com/report/" target="_blank">data.eastmoney.com/report</a></td><td>免费查看摘要，付费全文</td></tr>
-                    <tr><td>券商研报</td><td>同花顺</td><td><a href="https://www.10jqka.com.cn/" target="_blank">10jqka.com.cn</a></td><td>研报、财务数据、新闻</td></tr>
-                    <tr><td>行业数据</td><td>中国汽车工业协会</td><td><a href="http://www.caam.org.cn/" target="_blank">caam.org.cn</a></td><td>汽车行业数据</td></tr>
-                    <tr><td>国家统计</td><td>国家统计局</td><td><a href="https://data.stats.gov.cn/" target="_blank">data.stats.gov.cn</a></td><td>宏观、行业数据</td></tr>
-                    <tr><td>全球数据</td><td>World Bank</td><td><a href="https://data.worldbank.org/" target="_blank">data.worldbank.org</a></td><td>全球经济指标</td></tr>
-                    <tr><td>公司财报</td><td>巨潮资讯网</td><td><a href="http://www.cninfo.com.cn/" target="_blank">cninfo.com.cn</a></td><td>A股公司年报、公告</td></tr>
-                </table>
-                <p><strong>提示</strong>：使用 iAnalyst 时，可以将从上述来源获取的关键数据粘贴到搜索框下方的"粘贴关键数据"区域，AI 将优先基于你提供的真实数据进行分析，准确度显著提升。</p>
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <div class="feature-title">AI 综合研报生成</div>
+                <div class="feature-desc">一键生成专业投资分析报告，支持快速/深度模式</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <div class="feature-title">分析全流程手册</div>
+                <div class="feature-desc">内置证券分析八步法，从行业比较到复盘迭代全覆盖</div>
             </div>
         </div>
+
+        <a href="app.html" class="btn-enter">进入分析台</a>
+
         <div class="footer-note">
-            ⚡ 基于Deepseek大模型实时生成 · 行业 / 企业双板块
+            iAnalyst · Powered by DeepSeek · 数据仅供参考，不构成投资建议
         </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8000';
-        let currentTab = 'industry';
+        // 渐变粒子背景
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
 
-        // 折叠/展开数据输入区
-        document.getElementById('toggleDataBtn').addEventListener('click', () => {
-            const area = document.getElementById('dataInputArea');
-            const btn = document.getElementById('toggleDataBtn');
-            if (area.style.display === 'none') {
-                area.style.display = 'block';
-                btn.textContent = '📋 收起数据输入区';
-            } else {
-                area.style.display = 'none';
-                btn.textContent = '📋 粘贴关键数据（可选，提高准确度）';
-            }
-        });
+        let width, height;
+        let particles = [];
 
-        // 分析手册弹窗开关
-        document.getElementById('openGuideBtn').addEventListener('click', () => {
-            document.getElementById('guideOverlay').classList.add('show');
-        });
-        document.getElementById('closeGuideBtn').addEventListener('click', () => {
-            document.getElementById('guideOverlay').classList.remove('show');
-        });
-        document.getElementById('guideOverlay').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('guideOverlay')) {
-                document.getElementById('guideOverlay').classList.remove('show');
-            }
-        });
-        // 静态数据
-        const staticData = {
-            name: "新能源汽车",
-            sector: "汽车产业（大类）",
-            penetrationRate: "41.3%",
-            lifeCycleStage: "成长期向成熟期过渡",
-            stageDetail: "高速增长阶段尾部，预计2027年前后进入成熟期",
-            marketSize: "4.2万亿人民币（2025E）",
-            yoyGrowth: "+28.6%",
-            shareOfLargerCategory: "占汽车产业总规模比重约 51%",
-            businessModel: "整车制造+软件服务双轮驱动；直销与经销混合；电池租赁、换电服务创造持续收入。",
-            moat: ["电池成本与供应链壁垒","智能驾驶数据飞轮","充电/换电基础设施网络效应","头部品牌认知及用户粘性"],
-            profitability: {
-                grossMargin: "整车企业毛利率：18-25%（纯电） vs 传统燃油 12-15%",
-                concentration: "CR5 从2020年 45% 升至2025Q1 58%",
-                profitDistribution: "电池环节35%，整车厂15%，上游锂矿20%，软件服务10%+"
-            },
-            externalFactors: ["政策：双积分、禁燃令、IRA补贴","经济：消费信心、利率","原材料：碳酸锂15-25万/吨","技术：固态电池、800V快充"],
-            keyPlayers: [
-                { name: "比亚迪", share: "32%", highlight: "全产业链垂直整合" },
-                { name: "特斯拉", share: "11%", highlight: "FSD + 超级工厂" },
-                { name: "理想汽车", share: "9%", highlight: "增程式+家庭定位" },
-                { name: "吉利极氪", share: "7%", highlight: "SEA浩瀚架构" },
-                { name: "蔚来", share: "5%", highlight: "换电网络+用户服务" }
-            ],
-            techRoutes: ["纯电动(BEV) 75%","插电混动(PHEV) 22%","燃料电池(FCEV) <1%","固态/钠离子 研发中"],
-            risks: ["补贴退坡","地缘政治风险","充电基建不足","技术路线押注","价格战"],
-            prosperity: "待配置"
-        };
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            initParticles();
+        }
 
-        // Tab 切换
-        document.getElementById('tabIndustry').addEventListener('click', () => switchTab('industry'));
-        document.getElementById('tabCompany').addEventListener('click', () => switchTab('company'));
-
-        function switchTab(tab) {
-            currentTab = tab;
-            const btnIndustry = document.getElementById('tabIndustry');
-            const btnCompany = document.getElementById('tabCompany');
-            const input = document.getElementById('searchInput');
-            if (tab === 'industry') {
-                btnIndustry.classList.add('active');
-                btnCompany.classList.remove('active');
-                input.placeholder = '输入行业名称，如 光伏、创新药...';
-                input.value = '新能源汽车';
-                renderStaticReport(staticData);
-            } else {
-                btnCompany.classList.add('active');
-                btnIndustry.classList.remove('active');
-                input.placeholder = '输入企业名称，如 伊利股份、宁德时代...';
-                input.value = '';
-                document.getElementById('reportContainer').innerHTML = `
-                    <div class="placeholder-note">
-                        🏢 企业深度分析<br>
-                        <span style="font-size:0.85rem;">请在上方输入企业名称，点击「AI 分析」开始</span>
-                    </div>`;
+        function initParticles() {
+            particles = [];
+            const count = Math.floor(width * height / 8000);
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 2.5 + 0.5,
+                    speedX: (Math.random() - 0.5) * 0.4,
+                    speedY: (Math.random() - 0.5) * 0.4,
+                    hue: Math.random() * 60 + 200 // 蓝紫色范围
+                });
             }
         }
 
-        function renderStaticReport(data) {
-            const container = document.getElementById('reportContainer');
-            container.innerHTML = `
-                <div class="industry-title">${data.name} · 行业透视（示例）</div>
-                <div class="industry-sub"><span>📍 所属大类：${data.sector}</span><span>📅 数据截至：2025年Q2</span></div>
-                <div class="metrics-grid">
-                    <div class="metric-card"><div class="metric-label">渗透率</div><div class="metric-value">${data.penetrationRate}</div><div class="metric-context">乘用车新车渗透率(2025E)</div></div>
-                    <div class="metric-card"><div class="metric-label">市场规模</div><div class="metric-value">${data.marketSize}</div><div class="metric-context trend-up">同比增长 ${data.yoyGrowth}</div></div>
-                    <div class="metric-card"><div class="metric-label">占大类产业比重</div><div class="metric-value">51%</div><div class="metric-context">${data.shareOfLargerCategory}</div></div>
-                    <div class="metric-card"><div class="metric-label">产业生命周期</div><div class="metric-value" style="font-size:1.3rem;">成长→成熟</div><div class="metric-context">${data.stageDetail}</div></div>
-                </div>
-                <!-- 省略若干卡片，保持原有静态报告不变 -->
-                <div class="section-card"><div class="section-title">商业模式</div><div class="section-content">${data.businessModel}</div></div>
-                <div class="section-card"><div class="section-title">护城河分析</div><div class="section-content"><ul>${data.moat.map(m => `<li>${m}</li>`).join('')}</ul></div></div>
-                <div class="section-card"><div class="section-title">盈利性剖析</div><div class="section-content">
-                    <p><strong>毛利率：</strong>${data.profitability.grossMargin}</p>
-                    <p><strong>行业集中度：</strong>${data.profitability.concentration}</p>
-                    <p><strong>产业链利润分配：</strong>${data.profitability.profitDistribution}</p>
-                    <div style="margin-top:0.8rem;">
-                        <div class="chart-bar"><span class="label">电池环节</span><div class="bar-bg"><div class="bar-fill" style="width:35%"></div></div><span>35%</span></div>
-                        <div class="chart-bar"><span class="label">整车厂</span><div class="bar-bg"><div class="bar-fill" style="width:15%"></div></div><span>15%</span></div>
-                        <div class="chart-bar"><span class="label">上游锂矿</span><div class="bar-bg"><div class="bar-fill" style="width:20%"></div></div><span>20%</span></div>
-                        <div class="chart-bar"><span class="label">软件/服务</span><div class="bar-bg"><div class="bar-fill" style="width:10%"></div></div><span>10%+</span></div>
-                    </div>
-                </div></div>
-                <div class="section-card"><div class="section-title">外部因素</div><div class="section-content"><ul>${data.externalFactors.map(f => `<li>${f}</li>`).join('')}</ul></div></div>
-                <div class="section-card"><div class="section-title">增速与头部公司</div><div class="section-content">
-                    <p><strong>行业增速：</strong>2025E 同比 +28.6%</p>
-                    <p><strong>头部企业：</strong></p>
-                    <div style="margin-top:0.5rem;">${data.keyPlayers.map(p => `
-                        <div class="chart-bar"><span class="label">${p.name}</span><div class="bar-bg"><div class="bar-fill" style="width:${parseFloat(p.share)*2.5}%"></div></div><span>${p.share} · ${p.highlight}</span></div>
-                    `).join('')}</div>
-                </div></div>
-                <div class="section-card"><div class="section-title">技术路线</div><div class="section-content"><ul>${data.techRoutes.map(t => `<li>${t}</li>`).join('')}</ul></div></div>
-                <div class="section-card"><div class="section-title">风险提示</div><div class="section-content"><ul>${data.risks.map(r => `<li>${r}</li>`).join('')}</ul></div></div>
-                <div class="section-card" style="border-left: 3px solid var(--orange);"><div class="section-title">🔮 行业景气度</div><div class="section-content"><p>${data.prosperity}</p></div></div>
-            `;
-        }
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
 
-        // AI 报告渲染
-        function renderAIReport(md, queryName) {
-            let jsonData = null;
-            const jsonMatch = md.match(/```json\s*([\s\S]*?)\s*```/);
-            if (jsonMatch) {
-                try {
-                    jsonData = JSON.parse(jsonMatch[1]);
-                } catch(e) {
-                    console.warn('JSON 解析失败，原始内容:', jsonMatch[1]);
-                    // 尝试修复常见的引号、换行问题
-                    try {
-                        jsonData = JSON.parse(jsonMatch[1].replace(/“|”/g, '"').replace(/‘|’/g, "'"));
-                    } catch(e2) {
-                        console.error('仍无法解析 JSON');
+            // 绘制渐变连线
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.8)`;
+                ctx.fill();
+
+                // 连线
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `hsla(${p.hue}, 70%, 65%, ${0.15 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
                     }
                 }
             }
-            // 调试：把 jsonData 输出到控制台（正式版可删除）
-            console.log('extracted jsonData:', jsonData);
-            let textOnly = md.replace(/```json[\s\S]*?```/, '').trim();
-            textOnly = textOnly.replace(/^(好的|您好|根据您的指示|作为.*?，)[\s\S]*?(?=## )/i, '').trim();
-            if (!textOnly.startsWith('##')) {
-                const firstHeader = textOnly.match(/## /);
-                if (firstHeader) textOnly = textOnly.substring(firstHeader.index);
-            }
-
-            let html = `<div class="industry-title">${queryName} · AI ${currentTab === 'industry' ? '行业' : '企业'}透视</div>`;
-            html += `<div class="industry-sub"><span>🤖 Deepseek实时生成</span><span>📅 ${new Date().toLocaleDateString()}</span></div>`;
-        
-            if (jsonData) {
-                if (currentTab === 'industry') {
-                    html += `<div class="metrics-grid">
-                        <div class="metric-card"><div class="metric-label">渗透率</div><div class="metric-value">${jsonData.penetration_rate || '数据暂缺'}</div><div class="metric-context">${jsonData.industry_name || queryName} 当前渗透率</div></div>
-                        <div class="metric-card"><div class="metric-label">市场规模</div><div class="metric-value">${jsonData.market_size || '数据暂缺'}</div><div class="metric-context trend-up">同比增长 ${jsonData.yoy_growth || '数据暂缺'}</div></div>
-                        <div class="metric-card"><div class="metric-label">产业生命周期</div><div class="metric-value" style="font-size:1.3rem;">${jsonData.lifecycle_stage || '数据暂缺'}</div><div class="metric-context">CR4 集中度: ${jsonData.cr4 || '数据暂缺'}</div></div>
-                        <div class="metric-card"><div class="metric-label">景气度</div><div class="metric-value">${jsonData.prosperity_level || '数据暂缺'} <span>${jsonData.prosperity_trend || ''}</span></div><div class="metric-context">投资建议: ${jsonData.investment_advice || '数据暂缺'} | 毛利率: ${jsonData.gross_margin_range || '数据暂缺'}</div></div>
-                    </div>`;
-                } else {
-                    html += `<div class="metrics-grid">
-                        <div class="metric-card"><div class="metric-label">营收增速</div><div class="metric-value">${jsonData.revenue_growth || '数据暂缺'}</div><div class="metric-context">${jsonData.company_name || queryName} 同比增速</div></div>
-                        <div class="metric-card"><div class="metric-label">毛利率</div><div class="metric-value">${jsonData.gross_margin || '数据暂缺'}</div><div class="metric-context">盈利能力</div></div>
-                        <div class="metric-card"><div class="metric-label">ROE</div><div class="metric-value">${jsonData.roe || '数据暂缺'}</div><div class="metric-context">扣非净利润增速: ${jsonData.deducted_net_profit_growth || '数据暂缺'}</div></div>
-                        <div class="metric-card"><div class="metric-label">综合质地</div><div class="metric-value">${jsonData.prosperity_level || '数据暂缺'}</div><div class="metric-context">投资建议: ${jsonData.investment_advice || '数据暂缺'} | PE: ${jsonData.pe || '数据暂缺'}</div></div>
-                    </div>`;
-                }
-            }
-
-            const sections = textOnly.split(/(?=^## )/gm);
-            sections.forEach(section => {
-                const lines = section.trim().split('\n');
-                if (lines.length === 0) return;
-                const title = lines[0].replace(/^## /, '').replace(/\*\*/g, '');
-                let mdContent = lines.slice(1).join('\n').trim();
-                                // 预处理：把 **小标题：** 后面的换行变成空格，防止 marked 分段
-                mdContent = mdContent.replace(/(\*\*[^*]+\*\*[：:])\s*\n\s*/g, '$1 ');
-                let contentHtml = mdContent ? marked.parse(mdContent) : '';
-                html += `<div class="section-card"><div class="section-title">${title}</div><div class="section-content">${contentHtml}</div></div>`;
-            });
-
-            if (currentTab === 'company') {
-                html += `<div class="section-card" style="text-align: center; border: 1px dashed var(--accent); background: transparent;">
-                    <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">📄 以上为15个维度的详细分析，可基于此生成深度综合投资分析报告</div>
-                    <button id="genReportBtn" class="search-btn" style="padding: 0.6rem 2rem;">生成综合投资分析报告</button>
-                </div>`;
-            }
-
-            setTimeout(() => {
-                const btn = document.getElementById('genReportBtn');
-                if (btn) {
-                    btn.addEventListener('click', async () => {
-                        const cards = document.querySelectorAll('.section-card');
-                        let contentText = '';
-                        cards.forEach((card, index) => {
-                            const title = card.querySelector('.section-title')?.innerText;
-                            const content = card.querySelector('.section-content')?.innerText;
-                            if (title && content && index < cards.length - 1) {
-                                contentText += `## ${title}\n${content}\n\n`;
-                            }
-                        });
-
-                        const genCard = btn.closest('.section-card');
-                        genCard.innerHTML = `
-                            <div class="loading-text" style="padding:1rem;">
-                                <span class="loading-bounce-inline">⏳</span> 正在基于前15个维度生成深度投资分析报告，预计需要20-30秒...
-                            </div>
-                        `;
-
-                        try {
-                            const resp = await fetch(`${API_BASE}/generate_company_report`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ company_name: document.getElementById('searchInput').value.trim(), content: contentText })
-                            });
-                            const data = await resp.json();
-                            if (data.status === 'success') {
-                                let md = data.report;
-                                let reportHtml = marked.parse(md.replace(/```json[\s\S]*?```/, ''));
-                                reportHtml = reportHtml.replace(/<\/?p>/g, '');
-                                let formatted = marked.parse(md.replace(/```json[\s\S]*?```/, ''));
-                                // 去掉多余的 p 标签，保留内部样式
-                                formatted = formatted.replace(/<\/?p>/g, '');
-                                // 把 ## 标题转为带样式的 h2
-                                formatted = formatted.replace(/<h2>/g, '<h2 style="font-size:1.1rem; font-weight:650; color:#fff; margin:1.2rem 0 0.5rem 0; padding-left:0.8rem; border-left:3px solid var(--accent);">');
-                                const docHtml = `
-                                    <div class="report-document" id="fullReport">
-                                        ${reportHtml}
-                                        <div style="text-align: right; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #555;">
-                                            <button onclick="window.print()" class="search-btn export-pdf-btn" style="padding: 0.5rem 1.5rem;">📄 导出 PDF</button>
-                                            <p style="font-size:0.8rem; color:#888; margin-top:0.4rem;">点击后请在弹出的打印对话框中选择「另存为 PDF」</p>
-                                        </div>
-                                    </div>
-                                `;
-                                genCard.outerHTML = docHtml;
-                            } else {
-                                const errDetail = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
-                                genCard.innerHTML = `<div class="error-text">❌ 分析失败：${errDetail}</div>`;
-                            }
-                        } catch (err) {
-                            console.error('请求错误:', err);
-                            let errMsg = '无法连接到后端，请确认 server.py 已启动。';
-                            if (err.message) errMsg = err.message;
-                            genCard.innerHTML = `<div class="error-text">❌ ${errMsg}</div>`;
-                        }
-                    });
-                }
-            }, 100);
-            return html;
         }
 
-        // 搜索处理
-        async function handleSearch() {
-            const query = document.getElementById('searchInput').value.trim();
-            if (!query) return;
-            if (currentTab === 'industry' && query === '新能源汽车') {
-                renderStaticReport(staticData);
-                return;
-            }
-
-            const container = document.getElementById('reportContainer');
-            const btn = document.getElementById('searchBtn');
-            btn.disabled = true;
-
-            container.innerHTML = `
-                <div class="loading-text" id="loadingBlock">
-                    <div id="progressList" style="text-align: left; max-width: 400px; margin: 1rem auto 0; color: var(--text-secondary); font-size: 0.9rem;">
-                        <div><span class="loading-bounce-inline">⏳</span> 正在启动分析引擎…</div>
-                    </div>
-                </div>
-            `;
-
-            const progressList = document.getElementById('progressList');
-            const steps = [
-                `🔍 正在收集「${query}」的行业基础数据…`,
-                `📊 正在分析竞争格局与市场份额…`,
-                `📉 正在评估景气度与风险指标…`,
-                `📄 正在生成结构化分析报告…`
-            ];
-            let stepIndex = 0;
-            const timer = setInterval(() => {
-                if (stepIndex < steps.length) {
-                    const stepDiv = document.createElement('div');
-                    stepDiv.textContent = steps[stepIndex];
-                    progressList.appendChild(stepDiv);
-                    stepIndex++;
-                }
-            }, 2000);
-            container._loadingTimer = timer;
-
-            try {
-                const endpoint = currentTab === 'industry' ? '/analyze' : '/analyze_company';
-                const bodyKey = currentTab === 'industry' ? 'industry_name' : 'company_name';
-                const response = await fetch(`${API_BASE}${endpoint}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        [bodyKey]: query,
-                        analysis_mode: document.getElementById('analysisMode').value,
-                        ...(document.getElementById('userDataInput').value.trim() ? { user_data: document.getElementById('userDataInput').value.trim() } : {})
-                    })
-                });
-                let data;
-                try { data = await response.json(); } catch (jsonErr) {
-                    console.error('响应不是有效的 JSON', jsonErr);
-                    container.innerHTML = `<div class="error-text">❌ 后端返回了无效数据，请查看终端日志</div>`;
-                    return;
-                }
-                if (data && data.status === 'success') {
-                    container.innerHTML = renderAIReport(data.report, query);
-                } else {
-                    const errDetail = data?.detail || '未知错误';
-                    container.innerHTML = `<div class="error-text">❌ 分析失败：${errDetail}</div>`;
-                }
-            } catch (err) {
-                console.error('请求错误:', err);
-                let errMsg = '无法连接到后端，请确认 server.py 已启动。';
-                if (err.message) errMsg = err.message;
-                container.innerHTML = `<div class="error-text">❌ ${errMsg}</div>`;
-            } finally {
-                btn.disabled = false;
-                if (container._loadingTimer) {
-                    clearInterval(container._loadingTimer);
-                    delete container._loadingTimer;
-                }
+        function update() {
+            for (let p of particles) {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if (p.x < 0 || p.x > width) p.speedX *= -1;
+                if (p.y < 0 || p.y > height) p.speedY *= -1;
             }
         }
 
-        document.getElementById('searchBtn').addEventListener('click', handleSearch);
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSearch();
-        });
+        function animate() {
+            update();
+            draw();
+            requestAnimationFrame(animate);
+        }
 
-        window.addEventListener('DOMContentLoaded', () => renderStaticReport(staticData));
+        window.addEventListener('resize', resize);
+        resize();
+        animate();
     </script>
 </body>
 </html>
