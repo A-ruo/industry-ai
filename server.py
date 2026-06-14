@@ -16,6 +16,8 @@ app.add_middleware(
 )
 
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+if not DEEPSEEK_API_KEY:
+    raise ValueError("请先设置环境变量 DEEPSEEK_API_KEY")
 client = OpenAI(
     api_key=DEEPSEEK_API_KEY,
     base_url="https://api.deepseek.com"
@@ -23,17 +25,19 @@ client = OpenAI(
 
 class IndustryRequest(BaseModel):
     industry_name: str
-    user_data: Optional[str] = None   # 改为 Optional[str]
+    user_data: Optional[str] = None
+    analysis_mode: Optional[str] = "quick"
 
 class CompanyRequest(BaseModel):
     company_name: str
     user_data: Optional[str] = None
+    analysis_mode: Optional[str] = "quick"
 
 class ReportRequest(BaseModel):
     content: str
     company_name: str
 
-# ---------- 行业分析提示词 ----------
+# ---------- 提示词 ----------
 ANALYSIS_PROMPT_TEMPLATE = """
 你是一位资深证券行业分析师，擅长用《如何快速了解一个行业》中的“四步一核心”框架进行结构化分析。
 
@@ -49,15 +53,18 @@ ANALYSIS_PROMPT_TEMPLATE = """
 请针对【{industry_name}】行业，严格按以下结构输出深度分析报告：
 
 ## 一、行业框架（八大维度速览）
-每个维度使用**粗体标题**，然后换行用列表给出“概念 → 定义 → 关键指标”：
-- **行业生命周期**：
-- **商业模式**：
-- **市场规模**：
-- **竞争格局**：
-- **驱动因素**：
-- **景气度**：
-- **壁垒**：
-- **盈利模式**：
+必须使用 Markdown 表格呈现，格式如下：
+| 维度 | 概念 | 定义 | 关键指标 |
+| --- | --- | --- | --- |
+| 行业生命周期 | ... | ... | ... |
+| 商业模式 | ... | ... | ... |
+| 市场规模 | ... | ... | ... |
+| 竞争格局 | ... | ... | ... |
+| 驱动因素 | ... | ... | ... |
+| 景气度 | ... | ... | ... |
+| 壁垒 | ... | ... | ... |
+| 盈利模式 | ... | ... | ... |
+表格后无需再重复文字说明。
 
 ## 二、关键数据（4×3 信息卡片）
 **行业层面**
@@ -83,13 +90,14 @@ ANALYSIS_PROMPT_TEMPLATE = """
 - **库存周期**：（当前所处阶段）
 
 ## 三、景气度判断
-为以下变量分别设定具体数值阈值（高-中-低），给出当前实际值、所处档位、趋势方向（↑↓→）、变化幅度（大/中/小）：
-- **需求端**：（如销量增速、订单指数）
-- **供给端**：（如产能利用率、资本开支增速）
-- **价格端**：（如产品均价、原材料成本）
-- **盈利端**：（如行业平均毛利率）
-
-综合以上，给出**景气度总体档位**（高/中/低）及未来1-3个月预判。
+必须使用 Markdown 表格呈现，格式如下：
+| 指标类别 | 关键变量 | 当前实际值 | 高-中-低阈值 | 当前档位 | 趋势方向 | 变化幅度 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 需求端 | ... | ... | ... | ... | ... | ... |
+| 供给端 | ... | ... | ... | ... | ... | ... |
+| 价格端 | ... | ... | ... | ... | ... | ... |
+| 盈利端 | ... | ... | ... | ... | ... | ... |
+表格后另起一段给出**景气度总体档位**（高/中/低）及未来1-3个月预判。
 
 ## 四、洞见与建议
 **行业定位**
@@ -113,10 +121,9 @@ ANALYSIS_PROMPT_TEMPLATE = """
   "investment_advice": "布局/观望/撤退"
 }}
 
-请直接输出报告正文和JSON代码块，不要额外解释。
+请直接输出报告正文和JSON代码块，不要任何开场白、问候语或确认语句（如“好的”、“作为...”、“根据...”），也不要使用三级标题（###）。
 """
 
-# ---------- 企业分析提示词 ----------
 COMPANY_ANALYSIS_PROMPT_TEMPLATE = """
 你是一位资深证券分析师，擅长对上市公司进行全方位深度剖析。请严格按照以下15个维度对【{company_name}】进行分析，使用Markdown格式输出，每个维度用"## 维度名称"作为大标题，内部用列表或段落展开。
 
@@ -126,7 +133,7 @@ COMPANY_ANALYSIS_PROMPT_TEMPLATE = """
 2. 使用"因为…所以…"的因果逻辑链条，而非简单罗列事实。
 3. 如果某个维度的数据确实无法获取，请明确标注"数据暂缺"，并给出替代观察建议。
 4. 只能使用二级标题（##），禁止使用三级及以下标题（###）。需要分层时，用**粗体小标题**+列表。
-5. 输出末尾必须附加一个JSON代码块，包含关键指标摘要。
+5. 在“行业框架”和“景气度判断”板块必须使用Markdown表格呈现数据，表格必须严格对齐，每列用`|`分隔，表头与内容用`|---|---|`分隔。须附加一个JSON代码块，包含关键指标摘要。
 
 ## 一、企业画像
 用**粗体小标题**分项说明，最后用一段话概括：
@@ -169,10 +176,12 @@ COMPANY_ANALYSIS_PROMPT_TEMPLATE = """
 - **最终观点**：当前估值是否合理，是否存在低估或高估
 
 ## 六、客户分析
-按两个层面展开：
-- **B2B直接客户**：经销商、大型零售商、电商平台等，分析公司的渠道管控能力
-- **B2C最终用户**：按消费者画像分群（婴幼儿/青少年/成人/中老年/健身人群等），分析各群需求特点
-- **结论**：客户结构决定了公司需要怎样的核心能力
+必须使用 Markdown 表格呈现，格式如下：
+| 客户类型 | 细分群体 | 需求特点 | 公司渠道能力/优势 |
+| --- | --- | --- | --- |
+| B2B直接客户 | ... | ... | ... |
+| B2C最终用户 | ... | ... | ... |
+表格后另起一段给出**结论**：客户结构决定了公司需要怎样的核心能力。
 
 ## 七、产品独特性
 - **技术领先维度**：公司掌握了哪些行业关键技术？有何专利或独家工艺？
@@ -236,7 +245,10 @@ COMPANY_ANALYSIS_PROMPT_TEMPLATE = """
 - **权益乘数**：财务杠杆贡献
 - **ROE驱动因素判断**：公司是靠"高利润"还是"高杠杆"还是"高周转"驱动ROE
 - **商业叙事**：用杜邦三要素串成一个完整故事
-
+- 用**粗体标题+同一行内容**的形式输出：
+  **ROE驱动因素判断**：伊利是典型的“高利润+高周转”驱动型，财务杠杆贡献较小……
+  **商业叙事**：该公司……
+  注意：标题和内容必须在同一行，不要换行。
 ```json
 {{
   "company_name": "{company_name}",
@@ -249,10 +261,9 @@ COMPANY_ANALYSIS_PROMPT_TEMPLATE = """
   "prosperity_level": "综合质地评估（优秀/良好/一般/较差）",
   "investment_advice": "布局/观望/撤退"
 }}
-请直接输出报告正文和JSON代码块，不要额外解释。
+请直接输出报告正文和JSON代码块，不要任何开场白、问候语或确认语句（如“好的”、“作为...”、“根据...”），也不要使用三级标题（###）。
 """
 
-# 生成综合报告的提示词
 REPORT_PROMPT_TEMPLATE = """
 你是一位资深证券分析师。下面是对【{company_name}】的前15个维度的详细分析内容。请基于这些内容，撰写一份完整的、深度综合投资分析报告，字数不少于2000字。报告必须包含以下部分：
 
@@ -273,7 +284,7 @@ REPORT_PROMPT_TEMPLATE = """
 
 ## 六、估值与投资建议
 给出明确的估值判断（是否低估/合理/高估）和最终投资建议（布局/观望/撤退），并附详细理由。
-
+请直接输出报告正文，不要任何开场白、问候语、确认语句（如“好的”、“作为...”）。
 以下是已有的分析内容：
 {content}
 """
@@ -292,7 +303,66 @@ async def analyze_industry(request: IndustryRequest):
             "并标注哪些结论基于用户数据、哪些为合理推测。**\n\n"
             f"用户数据：\n{request.user_data}\n\n---\n\n"
         )
-    prompt = user_context + ANALYSIS_PROMPT_TEMPLATE.format(industry_name=request.industry_name)
+
+    if request.analysis_mode == "quick":
+        prompt_template = """
+你是一位资深行业分析师，请用最精炼的语言快速概述【{industry_name}】行业，严格遵循以下格式：
+
+## 生命周期
+（一句话说明所处阶段及特征）
+
+## 市场规模
+（当前规模及近一年增速，仅给出关键数字）
+
+## 竞争格局
+（CR4集中度及头部公司名，一句话概括格局）
+
+## 景气度
+（当前景气档位及未来1-3个月趋势，一句话）
+
+## 投资建议
+（布局/观望/撤退，附一句话理由）
+
+```json
+{{
+  "industry_name": "{industry_name}",
+  "lifecycle_stage": "导入期/成长期/成熟期/衰退期",
+  "penetration_rate": "数据暂缺",
+  "market_size": "数据暂缺",
+  "yoy_growth": "数据暂缺",
+  "cr4": "数据暂缺",
+  "gross_margin_range": "数据暂缺",
+  "prosperity_level": "高/中/低",
+  "prosperity_trend": "↑/↓/→",
+  "investment_advice": "布局/观望/撤退"
+}}
+"""
+        prompt = user_context + prompt_template.format(industry_name=request.industry_name)
+    elif request.analysis_mode == "prosperity":
+        prompt_template = """
+你是一位景气度分析专家。请针对【{industry_name}】行业，只分析景气度相关内容，包括：
+1. 需求端、供给端、价格端、盈利端的关键指标
+2. 为每个指标设定高-中-低阈值
+3. 给出当前景气度总体档位和未来1-3个月预判
+请直接输出报告正文和JSON代码块，不要任何开场白、问候语或确认语句（如“好的”、“作为...”、“根据...”），也不要使用三级标题（###）。
+
+```json
+{{
+  "industry_name": "{industry_name}",
+  "lifecycle_stage": "数据暂缺",
+  "penetration_rate": "数据暂缺",
+  "market_size": "数据暂缺",
+  "yoy_growth": "数据暂缺",
+  "cr4": "数据暂缺",
+  "gross_margin_range": "数据暂缺",
+  "prosperity_level": "高/中/低",
+  "prosperity_trend": "↑/↓/→",
+  "investment_advice": "数据暂缺"
+}}
+"""
+        prompt = user_context + prompt_template.format(industry_name=request.industry_name)
+    else:  # deep
+        prompt = user_context + ANALYSIS_PROMPT_TEMPLATE.format(industry_name=request.industry_name)
 
     try:
         response = client.chat.completions.create(
@@ -323,7 +393,44 @@ async def analyze_company(request: CompanyRequest):
             "并标注哪些结论基于用户数据、哪些为合理推测。**\n\n"
             f"用户数据：\n{request.user_data}\n\n---\n\n"
         )
-    prompt = user_context + COMPANY_ANALYSIS_PROMPT_TEMPLATE.format(company_name=request.company_name)
+
+    if request.analysis_mode == "quick":
+        prompt_template = """
+你是一位资深分析师，请用最精炼的语言快速概述【{company_name}】公司，包含以下维度，每个维度仅用1-2句话：
+
+## 企业画像
+（一句话定位及核心业务）
+
+## 核心指标
+（营收、毛利率、扣非净利的关键数字）
+
+## 竞争格局
+（主要对手及市场地位）
+
+## 护城河
+（最核心的壁垒，一句话）
+
+## 估值与建议
+（当前PE及投资建议）
+
+```json
+{{
+  "company_name": "{company_name}",
+  "industry_position": "行业地位",
+  "revenue_growth": "数据暂缺",
+  "gross_margin": "数据暂缺",
+  "deducted_net_profit_growth": "数据暂缺",
+  "roe": "数据暂缺",
+  "pe": "数据暂缺",
+  "prosperity_level": "数据暂缺",
+  "investment_advice": "布局/观望/撤退"
+}}
+"""
+        prompt = user_context + prompt_template.format(company_name=request.company_name)
+    elif request.analysis_mode == "prosperity":
+        raise HTTPException(status_code=400, detail="企业分析暂不支持景气度专项模式")
+    else:
+        prompt = user_context + COMPANY_ANALYSIS_PROMPT_TEMPLATE.format(company_name=request.company_name)
 
     try:
         response = client.chat.completions.create(

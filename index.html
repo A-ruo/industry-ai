@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>行业洞察 · 分析工作台</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
             --bg: #0f1117;
@@ -34,7 +35,6 @@
         }
         .container { max-width: 1200px; width: 100%; }
 
-        /* 头部 */
         .header {
             display: flex;
             justify-content: space-between;
@@ -46,7 +46,6 @@
         .logo { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.3px; color: #fff; }
         .logo span { color: var(--accent); }
 
-        /* Tab 切换按钮组 */
         .tab-group {
             display: flex;
             background: var(--card-bg);
@@ -65,14 +64,8 @@
             transition: all 0.2s;
             font-weight: 500;
         }
-        .tab-btn.active {
-            background: var(--accent);
-            color: #fff;
-        }
-        .tab-btn:not(.active):hover {
-            color: #fff;
-            background: rgba(255,255,255,0.05);
-        }
+        .tab-btn.active { background: var(--accent); color: #fff; }
+        .tab-btn:not(.active):hover { color: #fff; background: rgba(255,255,255,0.05); }
 
         .search-box {
             display: flex;
@@ -109,7 +102,6 @@
         .search-btn:hover { background: var(--accent-glow); }
         .search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        /* 标题 */
         .industry-title {
             font-size: 1.8rem;
             font-weight: 700;
@@ -125,7 +117,6 @@
             flex-wrap: wrap;
         }
 
-        /* 指标卡片网格 */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -152,7 +143,6 @@
         .trend-up { color: var(--green); }
         .trend-down { color: var(--red); }
 
-        /* 报告段落的卡片 */
         .section-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
@@ -221,11 +211,160 @@
             background: var(--card-bg);
             border-radius: 10px;
         }
+
+        .section-content { writing-mode: horizontal-tb !important; text-orientation: mixed; }
+        .section-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            color: #cbd0db;
+        }
+        .section-content th {
+            background: #242836;
+            color: #fff;
+            padding: 0.5rem 0.7rem;
+            border: 1px solid var(--border);
+            font-weight: 600;
+        }
+        .section-content td {
+            padding: 0.4rem 0.7rem;
+            border: 1px solid var(--border);
+        }
+        .section-content tr:hover td { background: rgba(46,125,252,0.08); }
+        .section-content h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #d0d4e0;
+            margin: 1rem 0 0.3rem 0;
+            padding-left: 0.5rem;
+            border-left: 2px solid rgba(46,125,252,0.5);
+        }
+        .section-content h2 {
+            font-size: 1.1rem;
+            font-weight: 650;
+            color: #fff;
+            margin: 1.2rem 0 0.5rem 0;
+            padding-left: 0.8rem;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* 打印样式 */
+            @media print {
+            body {
+                background: #fff !important;
+                color: #000 !important;
+            }
+            /* 隐藏导航、卡片等 */
+            .header, .search-box, .tab-group, .footer-note,
+            #toggleDataBtn, #dataInputArea, #analysisMode,
+            .spinner, .spinner-dual, .loadingio-spinner-magnify-nq4q5u6dq7r,
+            .section-card, .metric-card, .btn-enter, .export-pdf-btn,
+            #genReportBtn {
+                display: none !important;
+            }
+
+            .report-document {
+                display: block !important;
+                background: #fff !important;
+                color: #000 !important;
+                padding: 1.5rem !important;
+                margin: 0 auto !important;
+                box-shadow: none !important;
+                line-height: 1.8;
+            }
+            .report-document * {
+                color: #000 !important;
+                text-shadow: none !important;
+                -webkit-text-fill-color: #000 !important;
+            }
+            .report-document h1,
+            .report-document h2,
+            .report-document h3 {
+                color: #000 !important;
+                border-bottom: 1px solid #ccc;
+            }
+            .report-document table {
+                border-color: #000 !important;
+            }
+            .report-document th {
+                background: #e0e0e0 !important;
+                color: #000 !important;
+                border-color: #000 !important;
+            }
+            .report-document td {
+                border-color: #000 !important;
+            }
+            .report-document strong {
+                color: #000 !important;
+            }
+            .report-document button {
+                display: none !important;
+            }
+            /* 清除任何内联颜色 */
+            [style*="color"] {
+                color: #000 !important;
+            }
+                        /* 确保页面本身无阴影、无背景 */
+            html, body {
+                background: #fff !important;
+                box-shadow: none !important;
+            }
+            /* 去掉报告里 h2 的蓝色左边框（打印时它会变灰，像阴影） */
+            .report-document h2,
+            .report-document h3 {
+                border-left: none !important;
+                padding-left: 0 !important;
+            }
+        }
+
+        /* ⏳ 弹跳动画 */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+                .report-document {
+            background: var(--bg);
+            color: var(--text);
+            padding: 2rem 0;
+            line-height: 1.8;
+            font-size: 0.95rem;
+            /* 非卡片：无边框、无圆角、无阴影 */
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            margin-top: 1.5rem;
+            font-family: "PingFang SC", "Microsoft YaHei", "SimSun", serif;
+        }
+        .report-document * {
+            color: inherit;
+        }
+        .report-document h1,
+        .report-document h2,
+        .report-document h3 {
+            color: #ffffff;
+            border-bottom: 1px solid var(--border);
+        }
+        .report-document strong {
+            color: var(--accent-glow);
+        }
+        .report-document table {
+            color: var(--text);
+            border-color: var(--border);
+        }
+        .report-document th {
+            background: #242836;
+            color: #fff;
+        }
+        .loading-bounce-inline {
+            display: inline-block;
+            animation: bounce 1s infinite;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 头部：Logo + Tab 切换 -->
         <div class="header">
             <div class="logo">📊 行业<span>洞察</span> · 分析工作台</div>
             <div class="tab-group">
@@ -234,12 +373,16 @@
             </div>
         </div>
 
-        <!-- 搜索区域 -->
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="输入行业名称，如 光伏、创新药..." value="新能源汽车">
+            <select id="analysisMode" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 0.6rem; border-radius: 6px; font-family: var(--font); font-size: 0.85rem; cursor: pointer;">
+                <option value="deep">🔬 深度研报</option>
+                <option value="quick" selected>⚡ 快速概览</option>
+                <option value="prosperity">📊 景气度专项</option>
+            </select>
             <button class="search-btn" id="searchBtn">AI 分析</button>
         </div>
-        <!-- 可选：粘贴关键数据 -->
+
         <div style="margin-bottom: 1.5rem;">
             <button id="toggleDataBtn" style="background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-family: var(--font); font-size: 0.85rem;">
                 📋 粘贴关键数据（可选，提高准确度）
@@ -248,10 +391,8 @@
                 <textarea id="userDataInput" placeholder="在此粘贴财报摘要、行业数据、新闻等真实信息…&#10;AI 将优先基于这些数据分析，而非使用可能过时的训练数据。" style="width: 100%; height: 100px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 0.8rem; font-family: var(--font); font-size: 0.85rem; resize: vertical;"></textarea>
             </div>
         </div>
-        <!-- 报告展示容器 -->
-        <div id="reportContainer">
-            <!-- 默认加载新能源汽车静态报告 -->
-        </div>
+
+        <div id="reportContainer"></div>
 
         <div class="footer-note">
             ⚡ 基于Deepseek大模型实时生成 · 行业 / 企业双板块
@@ -261,7 +402,8 @@
     <script>
         const API_BASE = 'http://localhost:8000';
         let currentTab = 'industry';
-                // 折叠/展开数据输入区
+
+        // 折叠/展开数据输入区
         document.getElementById('toggleDataBtn').addEventListener('click', () => {
             const area = document.getElementById('dataInputArea');
             const btn = document.getElementById('toggleDataBtn');
@@ -273,7 +415,8 @@
                 btn.textContent = '📋 粘贴关键数据（可选，提高准确度）';
             }
         });
-        // ---------- 静态数据（新能源汽车）----------
+
+        // 静态数据
         const staticData = {
             name: "新能源汽车",
             sector: "汽车产业（大类）",
@@ -283,24 +426,14 @@
             marketSize: "4.2万亿人民币（2025E）",
             yoyGrowth: "+28.6%",
             shareOfLargerCategory: "占汽车产业总规模比重约 51%",
-            businessModel: "整车制造+软件服务（智能驾驶订阅）双轮驱动；直销与经销混合；电池租赁、换电服务创造持续收入。",
-            moat: [
-                "电池成本与供应链壁垒",
-                "智能驾驶数据飞轮",
-                "充电/换电基础设施网络效应",
-                "头部品牌认知及用户粘性"
-            ],
+            businessModel: "整车制造+软件服务双轮驱动；直销与经销混合；电池租赁、换电服务创造持续收入。",
+            moat: ["电池成本与供应链壁垒","智能驾驶数据飞轮","充电/换电基础设施网络效应","头部品牌认知及用户粘性"],
             profitability: {
                 grossMargin: "整车企业毛利率：18-25%（纯电） vs 传统燃油 12-15%",
                 concentration: "CR5 从2020年 45% 升至2025Q1 58%",
                 profitDistribution: "电池环节35%，整车厂15%，上游锂矿20%，软件服务10%+"
             },
-            externalFactors: [
-                "政策：双积分、禁燃令、IRA补贴",
-                "经济：消费信心、利率",
-                "原材料：碳酸锂15-25万/吨",
-                "技术：固态电池、800V快充"
-            ],
+            externalFactors: ["政策：双积分、禁燃令、IRA补贴","经济：消费信心、利率","原材料：碳酸锂15-25万/吨","技术：固态电池、800V快充"],
             keyPlayers: [
                 { name: "比亚迪", share: "32%", highlight: "全产业链垂直整合" },
                 { name: "特斯拉", share: "11%", highlight: "FSD + 超级工厂" },
@@ -308,12 +441,12 @@
                 { name: "吉利极氪", share: "7%", highlight: "SEA浩瀚架构" },
                 { name: "蔚来", share: "5%", highlight: "换电网络+用户服务" }
             ],
-            techRoutes: ["纯电动(BEV) 75%", "插电混动(PHEV) 22%", "燃料电池(FCEV) <1%", "固态/钠离子 研发中"],
-            risks: ["补贴退坡", "地缘政治风险", "充电基建不足", "技术路线押注", "价格战"],
+            techRoutes: ["纯电动(BEV) 75%","插电混动(PHEV) 22%","燃料电池(FCEV) <1%","固态/钠离子 研发中"],
+            risks: ["补贴退坡","地缘政治风险","充电基建不足","技术路线押注","价格战"],
             prosperity: "待配置"
         };
 
-        // ---------- Tab 切换 ----------
+        // Tab 切换
         document.getElementById('tabIndustry').addEventListener('click', () => switchTab('industry'));
         document.getElementById('tabCompany').addEventListener('click', () => switchTab('company'));
 
@@ -322,7 +455,6 @@
             const btnIndustry = document.getElementById('tabIndustry');
             const btnCompany = document.getElementById('tabCompany');
             const input = document.getElementById('searchInput');
-
             if (tab === 'industry') {
                 btnIndustry.classList.add('active');
                 btnCompany.classList.remove('active');
@@ -337,9 +469,8 @@
                 document.getElementById('reportContainer').innerHTML = `
                     <div class="placeholder-note">
                         🏢 企业深度分析<br>
-                        <span style="font-size:0.85rem;">请在上方输入企业名称（如“伊利股份”），点击「AI 分析」开始</span>
-                    </div>
-                `;
+                        <span style="font-size:0.85rem;">请在上方输入企业名称，点击「AI 分析」开始</span>
+                    </div>`;
             }
         }
 
@@ -347,151 +478,70 @@
             const container = document.getElementById('reportContainer');
             container.innerHTML = `
                 <div class="industry-title">${data.name} · 行业透视</div>
-                <div class="industry-sub">
-                    <span>📍 所属大类：${data.sector}</span>
-                    <span>📅 数据截至：2025年Q2（示例）</span>
-                </div>
+                <div class="industry-sub"><span>📍 所属大类：${data.sector}</span><span>📅 数据截至：2025年Q2（示例）</span></div>
                 <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-label">渗透率</div>
-                        <div class="metric-value">${data.penetrationRate}</div>
-                        <div class="metric-context">乘用车新车渗透率(2025E)</div>
+                    <div class="metric-card"><div class="metric-label">渗透率</div><div class="metric-value">${data.penetrationRate}</div><div class="metric-context">乘用车新车渗透率(2025E)</div></div>
+                    <div class="metric-card"><div class="metric-label">市场规模</div><div class="metric-value">${data.marketSize}</div><div class="metric-context trend-up">同比增长 ${data.yoyGrowth}</div></div>
+                    <div class="metric-card"><div class="metric-label">占大类产业比重</div><div class="metric-value">51%</div><div class="metric-context">${data.shareOfLargerCategory}</div></div>
+                    <div class="metric-card"><div class="metric-label">产业生命周期</div><div class="metric-value" style="font-size:1.3rem;">成长→成熟</div><div class="metric-context">${data.stageDetail}</div></div>
+                </div>
+                <!-- 省略若干卡片，保持原有静态报告不变 -->
+                <div class="section-card"><div class="section-title">商业模式</div><div class="section-content">${data.businessModel}</div></div>
+                <div class="section-card"><div class="section-title">护城河分析</div><div class="section-content"><ul>${data.moat.map(m => `<li>${m}</li>`).join('')}</ul></div></div>
+                <div class="section-card"><div class="section-title">盈利性剖析</div><div class="section-content">
+                    <p><strong>毛利率：</strong>${data.profitability.grossMargin}</p>
+                    <p><strong>行业集中度：</strong>${data.profitability.concentration}</p>
+                    <p><strong>产业链利润分配：</strong>${data.profitability.profitDistribution}</p>
+                    <div style="margin-top:0.8rem;">
+                        <div class="chart-bar"><span class="label">电池环节</span><div class="bar-bg"><div class="bar-fill" style="width:35%"></div></div><span>35%</span></div>
+                        <div class="chart-bar"><span class="label">整车厂</span><div class="bar-bg"><div class="bar-fill" style="width:15%"></div></div><span>15%</span></div>
+                        <div class="chart-bar"><span class="label">上游锂矿</span><div class="bar-bg"><div class="bar-fill" style="width:20%"></div></div><span>20%</span></div>
+                        <div class="chart-bar"><span class="label">软件/服务</span><div class="bar-bg"><div class="bar-fill" style="width:10%"></div></div><span>10%+</span></div>
                     </div>
-                    <div class="metric-card">
-                        <div class="metric-label">市场规模</div>
-                        <div class="metric-value">${data.marketSize}</div>
-                        <div class="metric-context trend-up">同比增长 ${data.yoyGrowth}</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">占大类产业比重</div>
-                        <div class="metric-value">51%</div>
-                        <div class="metric-context">${data.shareOfLargerCategory}</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-label">产业生命周期</div>
-                        <div class="metric-value" style="font-size:1.3rem;">成长→成熟</div>
-                        <div class="metric-context">${data.stageDetail}</div>
-                    </div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">商业模式</div>
-                    <div class="section-content">${data.businessModel}</div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">护城河分析</div>
-                    <div class="section-content"><ul>${data.moat.map(m => `<li>${m}</li>`).join('')}</ul></div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">盈利性剖析</div>
-                    <div class="section-content">
-                        <p><strong>毛利率：</strong>${data.profitability.grossMargin}</p>
-                        <p><strong>行业集中度：</strong>${data.profitability.concentration}</p>
-                        <p><strong>产业链利润分配：</strong>${data.profitability.profitDistribution}</p>
-                        <div style="margin-top:0.8rem;">
-                            <div class="chart-bar"><span class="label">电池环节</span><div class="bar-bg"><div class="bar-fill" style="width:35%"></div></div><span style="font-size:0.8rem;">35%</span></div>
-                            <div class="chart-bar"><span class="label">整车厂</span><div class="bar-bg"><div class="bar-fill" style="width:15%"></div></div><span style="font-size:0.8rem;">15%</span></div>
-                            <div class="chart-bar"><span class="label">上游锂矿</span><div class="bar-bg"><div class="bar-fill" style="width:20%"></div></div><span style="font-size:0.8rem;">20%</span></div>
-                            <div class="chart-bar"><span class="label">软件/服务</span><div class="bar-bg"><div class="bar-fill" style="width:10%"></div></div><span style="font-size:0.8rem;">10%+</span></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">外部因素</div>
-                    <div class="section-content"><ul>${data.externalFactors.map(f => `<li>${f}</li>`).join('')}</ul></div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">增速与头部公司</div>
-                    <div class="section-content">
-                        <p><strong>行业增速：</strong>2025E 同比 +28.6%</p>
-                        <p><strong>头部企业：</strong></p>
-                        <div style="margin-top:0.5rem;">
-                            ${data.keyPlayers.map(p => `
-                                <div class="chart-bar">
-                                    <span class="label">${p.name}</span>
-                                    <div class="bar-bg"><div class="bar-fill" style="width:${parseFloat(p.share)*2.5}%"></div></div>
-                                    <span style="font-size:0.8rem;">${p.share} · ${p.highlight}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">技术路线</div>
-                    <div class="section-content"><ul>${data.techRoutes.map(t => `<li>${t}</li>`).join('')}</ul></div>
-                </div>
-                <div class="section-card">
-                    <div class="section-title">风险提示</div>
-                    <div class="section-content"><ul>${data.risks.map(r => `<li>${r}</li>`).join('')}</ul></div>
-                </div>
-                <div class="section-card" style="border-left: 3px solid var(--orange);">
-                    <div class="section-title" style="border-left: none; padding-left: 0;">🔮 行业景气度</div>
-                    <div class="section-content"><p>${data.prosperity}</p></div>
-                </div>
+                </div></div>
+                <div class="section-card"><div class="section-title">外部因素</div><div class="section-content"><ul>${data.externalFactors.map(f => `<li>${f}</li>`).join('')}</ul></div></div>
+                <div class="section-card"><div class="section-title">增速与头部公司</div><div class="section-content">
+                    <p><strong>行业增速：</strong>2025E 同比 +28.6%</p>
+                    <p><strong>头部企业：</strong></p>
+                    <div style="margin-top:0.5rem;">${data.keyPlayers.map(p => `
+                        <div class="chart-bar"><span class="label">${p.name}</span><div class="bar-bg"><div class="bar-fill" style="width:${parseFloat(p.share)*2.5}%"></div></div><span>${p.share} · ${p.highlight}</span></div>
+                    `).join('')}</div>
+                </div></div>
+                <div class="section-card"><div class="section-title">技术路线</div><div class="section-content"><ul>${data.techRoutes.map(t => `<li>${t}</li>`).join('')}</ul></div></div>
+                <div class="section-card"><div class="section-title">风险提示</div><div class="section-content"><ul>${data.risks.map(r => `<li>${r}</li>`).join('')}</ul></div></div>
+                <div class="section-card" style="border-left: 3px solid var(--orange);"><div class="section-title">🔮 行业景气度</div><div class="section-content"><p>${data.prosperity}</p></div></div>
             `;
         }
 
-        // ---------- AI 报告渲染 ----------
+        // AI 报告渲染
         function renderAIReport(md, queryName) {
             let jsonData = null;
             const jsonMatch = md.match(/```json\s*([\s\S]*?)\s*```/);
-            if (jsonMatch) {
-                try { jsonData = JSON.parse(jsonMatch[1]); } catch(e) {}
+            if (jsonMatch) { try { jsonData = JSON.parse(jsonMatch[1]); } catch(e) {} }
+            let textOnly = md.replace(/```json[\s\S]*?```/, '').trim();
+            textOnly = textOnly.replace(/^(好的|您好|根据您的指示|作为.*?，)[\s\S]*?(?=## )/i, '').trim();
+            if (!textOnly.startsWith('##')) {
+                const firstHeader = textOnly.match(/## /);
+                if (firstHeader) textOnly = textOnly.substring(firstHeader.index);
             }
-            const textOnly = md.replace(/```json[\s\S]*?```/, '').trim();
-            
+
             let html = `<div class="industry-title">${queryName} · AI ${currentTab === 'industry' ? '行业' : '企业'}透视</div>`;
             html += `<div class="industry-sub"><span>🤖 Deepseek实时生成</span><span>📅 ${new Date().toLocaleDateString()}</span></div>`;
 
             if (jsonData) {
-                // 根据 tab 不同，指标卡片的标签可稍作调整（企业分析时 JSON 字段名可能不同）
                 if (currentTab === 'industry') {
-                    html += `
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">渗透率</div>
-                            <div class="metric-value">${jsonData.penetration_rate || '数据暂缺'}</div>
-                            <div class="metric-context">${jsonData.industry_name || queryName} 当前渗透率</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">市场规模</div>
-                            <div class="metric-value">${jsonData.market_size || '数据暂缺'}</div>
-                            <div class="metric-context trend-up">同比增长 ${jsonData.yoy_growth || '数据暂缺'}</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">产业生命周期</div>
-                            <div class="metric-value" style="font-size:1.3rem;">${jsonData.lifecycle_stage || '数据暂缺'}</div>
-                            <div class="metric-context">CR4 集中度: ${jsonData.cr4 || '数据暂缺'}</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">景气度</div>
-                            <div class="metric-value">${jsonData.prosperity_level || '数据暂缺'} <span style="font-size:1rem;">${jsonData.prosperity_trend || ''}</span></div>
-                            <div class="metric-context">投资建议: ${jsonData.investment_advice || '数据暂缺'} | 毛利率: ${jsonData.gross_margin_range || '数据暂缺'}</div>
-                        </div>
+                    html += `<div class="metrics-grid">
+                        <div class="metric-card"><div class="metric-label">渗透率</div><div class="metric-value">${jsonData.penetration_rate || '数据暂缺'}</div><div class="metric-context">${jsonData.industry_name || queryName} 当前渗透率</div></div>
+                        <div class="metric-card"><div class="metric-label">市场规模</div><div class="metric-value">${jsonData.market_size || '数据暂缺'}</div><div class="metric-context trend-up">同比增长 ${jsonData.yoy_growth || '数据暂缺'}</div></div>
+                        <div class="metric-card"><div class="metric-label">产业生命周期</div><div class="metric-value" style="font-size:1.3rem;">${jsonData.lifecycle_stage || '数据暂缺'}</div><div class="metric-context">CR4 集中度: ${jsonData.cr4 || '数据暂缺'}</div></div>
+                        <div class="metric-card"><div class="metric-label">景气度</div><div class="metric-value">${jsonData.prosperity_level || '数据暂缺'} <span>${jsonData.prosperity_trend || ''}</span></div><div class="metric-context">投资建议: ${jsonData.investment_advice || '数据暂缺'} | 毛利率: ${jsonData.gross_margin_range || '数据暂缺'}</div></div>
                     </div>`;
                 } else {
-                    // 企业分析的指标卡片：营收增速、毛利率、ROE、投资建议等
-                    html += `
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">营收增速</div>
-                            <div class="metric-value">${jsonData.revenue_growth || '数据暂缺'}</div>
-                            <div class="metric-context">${jsonData.company_name || queryName} 同比增速</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">毛利率</div>
-                            <div class="metric-value">${jsonData.gross_margin || '数据暂缺'}</div>
-                            <div class="metric-context">盈利能力</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">ROE</div>
-                            <div class="metric-value">${jsonData.roe || '数据暂缺'}</div>
-                            <div class="metric-context">扣非净利润增速: ${jsonData.deducted_net_profit_growth || '数据暂缺'}</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">综合质地</div>
-                            <div class="metric-value">${jsonData.prosperity_level || '数据暂缺'}</div>
-                            <div class="metric-context">投资建议: ${jsonData.investment_advice || '数据暂缺'} | PE: ${jsonData.pe || '数据暂缺'}</div>
-                        </div>
+                    html += `<div class="metrics-grid">
+                        <div class="metric-card"><div class="metric-label">营收增速</div><div class="metric-value">${jsonData.revenue_growth || '数据暂缺'}</div><div class="metric-context">${jsonData.company_name || queryName} 同比增速</div></div>
+                        <div class="metric-card"><div class="metric-label">毛利率</div><div class="metric-value">${jsonData.gross_margin || '数据暂缺'}</div><div class="metric-context">盈利能力</div></div>
+                        <div class="metric-card"><div class="metric-label">ROE</div><div class="metric-value">${jsonData.roe || '数据暂缺'}</div><div class="metric-context">扣非净利润增速: ${jsonData.deducted_net_profit_growth || '数据暂缺'}</div></div>
+                        <div class="metric-card"><div class="metric-label">综合质地</div><div class="metric-value">${jsonData.prosperity_level || '数据暂缺'}</div><div class="metric-context">投资建议: ${jsonData.investment_advice || '数据暂缺'} | PE: ${jsonData.pe || '数据暂缺'}</div></div>
                     </div>`;
                 }
             }
@@ -500,40 +550,23 @@
             sections.forEach(section => {
                 const lines = section.trim().split('\n');
                 if (lines.length === 0) return;
-                const title = lines[0].replace(/^## /, '');
-                const contentLines = lines.slice(1).join('\n').trim();
-                
-                let formattedContent = contentLines
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/^- (.*)/gm, '<li>$1</li>')
-                    .replace(/\n\n/g, '<br/><br/>')
-                    .replace(/\n/g, '<br/>');
-                
-                formattedContent = formattedContent.replace(/(<li>.*?<\/li>(<br\/>)?)+/g, match => `<ul>${match.replace(/<br\/>/g, '')}</ul>`);
-
-                html += `
-                    <div class="section-card">
-                        <div class="section-title">${title}</div>
-                        <div class="section-content">${formattedContent}</div>
-                    </div>
-                `;
+                const title = lines[0].replace(/^## /, '').replace(/\*\*/g, '');
+                const mdContent = lines.slice(1).join('\n').trim();
+                let contentHtml = mdContent ? marked.parse(mdContent) : '';
+                html += `<div class="section-card"><div class="section-title">${title}</div><div class="section-content">${contentHtml}</div></div>`;
             });
 
-                        // 如果是企业分析，在所有卡片后面加一个"生成综合报告"按钮
             if (currentTab === 'company') {
-                html += `
-                    <div class="section-card" style="text-align: center; border: 1px dashed var(--accent); background: transparent;">
-                        <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">📄 以上为15个维度的详细分析，可基于此生成深度综合投资分析报告</div>
-                        <button id="genReportBtn" class="search-btn" style="padding: 0.6rem 2rem;">生成综合投资分析报告</button>
-                    </div>
-                `;
+                html += `<div class="section-card" style="text-align: center; border: 1px dashed var(--accent); background: transparent;">
+                    <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">📄 以上为15个维度的详细分析，可基于此生成深度综合投资分析报告</div>
+                    <button id="genReportBtn" class="search-btn" style="padding: 0.6rem 2rem;">生成综合投资分析报告</button>
+                </div>`;
             }
-                        // 延迟绑定报告生成按钮（等 DOM 渲染完成）
+
             setTimeout(() => {
                 const btn = document.getElementById('genReportBtn');
                 if (btn) {
                     btn.addEventListener('click', async () => {
-                        // 收集前15个维度的内容（作为报告的上下文）
                         const cards = document.querySelectorAll('.section-card');
                         let contentText = '';
                         cards.forEach((card, index) => {
@@ -545,11 +578,9 @@
                         });
 
                         const genCard = btn.closest('.section-card');
-                        // 显示加载动画
                         genCard.innerHTML = `
                             <div class="loading-text" style="padding:1rem;">
-                                <div class="spinner"></div>
-                                ⏳ 正在基于前15个维度生成深度投资分析报告，预计需要20-30秒...
+                                <span class="loading-bounce-inline">⏳</span> 正在基于前15个维度生成深度投资分析报告，预计需要20-30秒...
                             </div>
                         `;
 
@@ -557,141 +588,126 @@
                             const resp = await fetch(`${API_BASE}/generate_company_report`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    company_name: document.getElementById('searchInput').value.trim(),
-                                    content: contentText
-                                })
+                                body: JSON.stringify({ company_name: document.getElementById('searchInput').value.trim(), content: contentText })
                             });
                             const data = await resp.json();
                             if (data.status === 'success') {
-                                                                let md = data.report;
-
-                                // 1. 转换表格
-                                md = md.replace(/((?:^\|.*\|$\n?)+)/gm, (match) => {
-                                    const rows = match.trim().split('\n');
-                                    let tableHtml = '<table>';
-                                    rows.forEach((row, idx) => {
-                                        const cells = row.split('|').filter(c => c.trim() !== '');
-                                        const tag = idx === 0 ? 'th' : 'td';
-                                        tableHtml += '<tr>';
-                                        cells.forEach(cell => {
-                                            tableHtml += `<${tag}>${cell.trim()}</${tag}>`;
-                                        });
-                                        tableHtml += '</tr>';
-                                    });
-                                    tableHtml += '</table>';
-                                    return tableHtml;
-                                });
-
-                                // 2. 去掉 JSON 代码块
-                                md = md.replace(/```json[\s\S]*?```/, '').trim();
-
-                                // 3. 标题转换：## → h2，### → h3
-                                md = md.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-                                md = md.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-
-                                // 4. 水平线
-                                md = md.replace(/^---$/gm, '<hr>');
-
-                                // 5. 其他格式：粗体、列表、段落
-                                let formatted = md
-                                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                                    .replace(/^- (.*)/gm, '<li>$1</li>')
-                                    .replace(/\n\n/g, '<br/><br/>')
-                                    .replace(/\n/g, '<br/>');
-
-                                // 6. 包裹连续 <li> 为 <ul>
-                                formatted = formatted.replace(/(<li>.*?<\/li>(<br\/>)?)+/g, m => `<ul>${m.replace(/<br\/>/g, '')}</ul>`);
-
-                                // 7. 清理多余的 <br/>（标题和 hr 后面）
-                                formatted = formatted.replace(/<\/(h[23]|hr)><br\/>/g, '</$1>');
-
-                                // 8. 整体包入文档容器
+                                let md = data.report;
+                                let reportHtml = marked.parse(md.replace(/```json[\s\S]*?```/, ''));
+                                reportHtml = reportHtml.replace(/<\/?p>/g, '');
+                                let formatted = marked.parse(md.replace(/```json[\s\S]*?```/, ''));
+                                // 去掉多余的 p 标签，保留内部样式
+                                formatted = formatted.replace(/<\/?p>/g, '');
+                                // 把 ## 标题转为带样式的 h2
+                                formatted = formatted.replace(/<h2>/g, '<h2 style="font-size:1.1rem; font-weight:650; color:#fff; margin:1.2rem 0 0.5rem 0; padding-left:0.8rem; border-left:3px solid var(--accent);">');
                                 const docHtml = `
-                                    <div class="report-document">
-                                        ${formatted}
+                                    <div class="report-document" id="fullReport">
+                                        ${reportHtml}
+                                        <div style="text-align: right; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #555;">
+                                            <button onclick="window.print()" class="search-btn export-pdf-btn" style="padding: 0.5rem 1.5rem;">📄 导出 PDF</button>
+                                            <p style="font-size:0.8rem; color:#888; margin-top:0.4rem;">点击后请在弹出的打印对话框中选择「另存为 PDF」</p>
+                                        </div>
                                     </div>
                                 `;
-
                                 genCard.outerHTML = docHtml;
                             } else {
-                    const errDetail = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
-                    container.innerHTML = `<div class="error-text">❌ 分析失败：${errDetail}</div>`;
+                                const errDetail = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+                                genCard.innerHTML = `<div class="error-text">❌ 分析失败：${errDetail}</div>`;
                             }
-                                                        } catch (err) {
-                                console.error('请求错误:', err);
-                                let errMsg = '无法连接到后端，请确认 server.py 已启动。';
-                                if (err.message) errMsg = err.message;
-                                genCard.innerHTML = `<div class="error-text">❌ ${errMsg}</div>`;
-                            }
+                        } catch (err) {
+                            console.error('请求错误:', err);
+                            let errMsg = '无法连接到后端，请确认 server.py 已启动。';
+                            if (err.message) errMsg = err.message;
+                            genCard.innerHTML = `<div class="error-text">❌ ${errMsg}</div>`;
+                        }
                     });
                 }
             }, 100);
             return html;
         }
-        
-        // ---------- 搜索处理 ----------
+
+        // 搜索处理
         async function handleSearch() {
             const query = document.getElementById('searchInput').value.trim();
             if (!query) return;
-
-            // 行业 tab 且搜索“新能源汽车”时，展示静态报告
             if (currentTab === 'industry' && query === '新能源汽车') {
                 renderStaticReport(staticData);
                 return;
             }
 
-            // 否则调用 AI
             const container = document.getElementById('reportContainer');
             const btn = document.getElementById('searchBtn');
             btn.disabled = true;
 
-            const typeLabel = currentTab === 'industry' ? '行业' : '企业';
             container.innerHTML = `
-                <div class="loading-text">
-                    <div class="spinner"></div>
-                    ⏳ AI 正在深度分析「${query}」${typeLabel}，预计需要10-20秒...
+                <div class="loading-text" id="loadingBlock">
+                    <div id="progressList" style="text-align: left; max-width: 400px; margin: 1rem auto 0; color: var(--text-secondary); font-size: 0.9rem;">
+                        <div><span class="loading-bounce-inline">⏳</span> 正在启动分析引擎…</div>
+                    </div>
                 </div>
             `;
+
+            const progressList = document.getElementById('progressList');
+            const steps = [
+                `🔍 正在收集「${query}」的行业基础数据…`,
+                `📊 正在分析竞争格局与市场份额…`,
+                `📉 正在评估景气度与风险指标…`,
+                `📄 正在生成结构化分析报告…`
+            ];
+            let stepIndex = 0;
+            const timer = setInterval(() => {
+                if (stepIndex < steps.length) {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.textContent = steps[stepIndex];
+                    progressList.appendChild(stepDiv);
+                    stepIndex++;
+                }
+            }, 2000);
+            container._loadingTimer = timer;
 
             try {
                 const endpoint = currentTab === 'industry' ? '/analyze' : '/analyze_company';
                 const bodyKey = currentTab === 'industry' ? 'industry_name' : 'company_name';
-
                 const response = await fetch(`${API_BASE}${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                    [bodyKey]: query,
-                    ...(document.getElementById('userDataInput').value.trim() ? { user_data: document.getElementById('userDataInput').value.trim() } : {})
-                })
+                        [bodyKey]: query,
+                        analysis_mode: document.getElementById('analysisMode').value,
+                        ...(document.getElementById('userDataInput').value.trim() ? { user_data: document.getElementById('userDataInput').value.trim() } : {})
+                    })
                 });
-                const data = await response.json();
-                if (data.status === 'success') {
+                let data;
+                try { data = await response.json(); } catch (jsonErr) {
+                    console.error('响应不是有效的 JSON', jsonErr);
+                    container.innerHTML = `<div class="error-text">❌ 后端返回了无效数据，请查看终端日志</div>`;
+                    return;
+                }
+                if (data && data.status === 'success') {
                     container.innerHTML = renderAIReport(data.report, query);
                 } else {
-                                        let errDetail = data.detail;
-                    if (typeof errDetail === 'object') {
-                        errDetail = JSON.stringify(errDetail);
-                    }
-                    container.innerHTML = `<div class="error-text">❌ 分析失败：${errDetail || '未知错误'}</div>`;
+                    const errDetail = data?.detail || '未知错误';
+                    container.innerHTML = `<div class="error-text">❌ 分析失败：${errDetail}</div>`;
                 }
             } catch (err) {
+                console.error('请求错误:', err);
                 let errMsg = '无法连接到后端，请确认 server.py 已启动。';
-                if (err && err.message) errMsg = err.message;
-                container.innerHTML = `<div class="error-text">❌ 网络或服务错误：${errMsg}</div>`;
+                if (err.message) errMsg = err.message;
+                container.innerHTML = `<div class="error-text">❌ ${errMsg}</div>`;
             } finally {
                 btn.disabled = false;
+                if (container._loadingTimer) {
+                    clearInterval(container._loadingTimer);
+                    delete container._loadingTimer;
+                }
             }
         }
 
-        // 绑定搜索事件
         document.getElementById('searchBtn').addEventListener('click', handleSearch);
         document.getElementById('searchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSearch();
         });
 
-        // 初始加载新能源汽车静态报告
         window.addEventListener('DOMContentLoaded', () => renderStaticReport(staticData));
     </script>
 </body>
