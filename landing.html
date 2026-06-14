@@ -158,14 +158,54 @@
             color: var(--text-secondary);
             opacity: 0.6;
         }
+                    .brand-gradient {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4d94ff, #a78bfa, #f59e0b, #4d94ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            animation: gradientFlow 3s ease infinite;
+        }
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+
+        .title-divider {
+            font-size: 2.2rem;
+            color: rgba(255,255,255,0.3);
+            margin: 0 0.5rem;
+            font-weight: 300;
+            vertical-align: middle;
+        }
+
+        .title-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff 0%, #a0c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
     <canvas id="particleCanvas"></canvas>
 
     <div class="container">
-        <div class="logo-icon">🔍</div>
-        <h1 class="main-title">行业 / 企业洞察 · AI 分析工作台</h1>
+                <div class="logo-icon">🔍</div>
+        <h1 class="main-title">
+            <span class="brand-gradient">iAnalyst</span>
+            <span class="title-divider">·</span>
+            <span class="title-text">行业 / 企业洞察 AI 分析工作台</span>
+        </h1>
         <p class="sub-title">基于 DeepSeek 大模型，系统化剖析行业与企业，辅助证券分析决策</p>
 
         <div class="features">
@@ -189,12 +229,17 @@
                 <div class="feature-title">AI 综合研报生成</div>
                 <div class="feature-desc">一键生成专业投资分析报告，支持快速/深度模式</div>
             </div>
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <div class="feature-title">分析全流程手册</div>
+                <div class="feature-desc">内置证券分析八步法，从行业比较到复盘迭代全覆盖</div>
+            </div>
         </div>
 
         <a href="index.html" class="btn-enter">进入分析台</a>
 
         <div class="footer-note">
-            Powered by DeepSeek · 数据仅供参考，不构成投资建议
+            iAnalyst · Powered by DeepSeek · 数据仅供参考，不构成投资建议
         </div>
     </div>
 
